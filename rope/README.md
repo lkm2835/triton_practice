@@ -39,3 +39,8 @@ triton backward:  463.0113902844881 microseconds
 - 해당 [라인](https://github.com/lkm2835/triton_practice/new/main/rope)을 `tl.store(t_ptrs, t * cos_ + t_rot * sin_)` 로 작성했었습니다.
 - 그러다보니 같은 입력에 대해 운 좋은 경우에는 문제없이 실행되었지만 운이 나쁜 경우에는 Race Condition이 발생하여 결과가 깨지는 상황이 발생했습니다.
 - 현재는 t_ptrs에 덮어씌우지 않고 o_ptrs로 저장하여 버그를 해결하였습니다.
+### 속도 차이
+- 아무래도 d_block_size 외에 s_block_size, h_block_size를 가변적으로 가지 못하는 구현인 것이 가장 아쉽습니다.
+- GPU device나 input tensor shape에 따라서 block_size를 잘 조절해주면 속도를 충분히 개선할 수 있기 때문에 이 부분을 가장 먼저 수정해야할 것 같습니다.
+- 그 이후에 한 가지 생각해본 것은 현재 구현은 t와 t_rot 값을 각각 로드하고 계산한 뒤 o_ptrs에 저장하는데,
+- t만 한번 로드하고 t * cos_ 에 해당하는 o_ptrs, t * sin_에 해당하는 o_ptrs의 값을 찾아 저장하면 로드 과정을 한번으로 줄이고 병렬처리도 더 이득을 볼 수 있을 것 같습니다.
